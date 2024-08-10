@@ -10,7 +10,7 @@ export async function POST(req) {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, // Use environment variable for API key
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, // Ensure this is set correctly
             },
             body: JSON.stringify({
                 messages: [
@@ -20,7 +20,7 @@ export async function POST(req) {
                     },
                     ...data,
                 ],
-                model: 'meta-llama/llama-3.1-8b-instruct:fre', // Verify model name
+                model: 'meta-llama/llama-3.1-8b-instruct:fre', // Verify model name with the API provider
                 stream: true
             })
         });

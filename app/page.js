@@ -1,6 +1,6 @@
 'use client'
-import { Box, Stack, TextField, Button } from "@mui/material";
-import { useState, useEffect } from "react";
+import { Box, Stack, TextField, Button, CircularProgress } from "@mui/material";
+import { useState } from "react";
 
 export default function Home() {
   const [messages, setMessages] = useState([{
@@ -25,7 +25,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch('app/api/chat', {
+      const response = await fetch('/app/api/chat', {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -37,8 +37,9 @@ export default function Home() {
       const decoder = new TextDecoder();
       let result = '';
 
-      reader.read().then(function processText({ done, value }) {
+      const processText = async ({ done, value }) => {
         if (done) {
+          setLoading(false); // Ensure loading stops when the stream is done
           return result;
         }
         
@@ -58,9 +59,10 @@ export default function Home() {
         });
 
         return reader.read().then(processText);
-      }).finally(() => {
-        setLoading(false);
-      });
+      };
+
+      reader.read().then(processText);
+
     } catch (error) {
       console.error('Error sending message:', error);
       setMessages((messages) => [
@@ -117,7 +119,7 @@ export default function Home() {
           ))}
           {loading && (
             <Box display="flex" justifyContent="center">
-              {/* <CircularProgress size={24} /> */}
+              <CircularProgress size={24} />
             </Box>
           )}
         </Stack>
