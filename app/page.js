@@ -86,7 +86,8 @@ export default function Home() {
       flexDirection="column" 
       justifyContent="center" 
       alignItems="center"
-      p={2} // Add padding for better spacing on small screens
+      p={2} 
+      bgcolor="white"
     >
       <Stack
         direction="column"
