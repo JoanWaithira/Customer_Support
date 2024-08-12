@@ -1,5 +1,5 @@
 'use client'
-import { Box, Stack, TextField, Button } from "@mui/material";
+import { Box, Stack, TextField, Button, CircularProgress } from "@mui/material";
 import { useState } from "react";
 
 export default function Home() {
@@ -12,9 +12,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!message.trim()) return; // Prevent sending empty messages
-
-    // Add the user's message to the chat
+    if (!message.trim()) return; 
+    
     setMessages((messages) => [
       ...messages,
       { role: "user", content: message },
@@ -87,11 +86,12 @@ export default function Home() {
       flexDirection="column" 
       justifyContent="center" 
       alignItems="center"
+      p={2} // Add padding for better spacing on small screens
     >
       <Stack
         direction="column"
-        width="600px"
-        height="700px"
+        width={{ xs: '100%', sm: '600px' }} // Responsive width
+        height={{ xs: '80vh', sm: '700px' }} // Responsive height
         border="1px solid black"
         p={2}
         spacing={2}
@@ -118,18 +118,19 @@ export default function Home() {
                 color="white"
                 borderRadius={16}
                 p={2}
+                maxWidth="80%" // Prevent messages from taking up too much space
               >
                 {message.content}
               </Box>
             </Box>
           ))}
           {loading && (
-            <Box display="flex" justifyContent="center">
-              {/* <CircularProgress size={24} /> */}
+            <Box display="flex" justifyContent="center" mt={2}>
+              <CircularProgress size={24} />
             </Box>
           )}
         </Stack>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             label="Message"
             fullWidth
@@ -138,6 +139,8 @@ export default function Home() {
             onKeyPress={(e) => {
               if (e.key === 'Enter') sendMessage();
             }}
+            variant="outlined"
+            size="large"
           />
           <Button variant="contained" onClick={sendMessage}>Send</Button>
         </Stack>
