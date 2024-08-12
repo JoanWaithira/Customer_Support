@@ -1,5 +1,5 @@
 'use client'
-import { Box, Stack, TextField, Button, CircularProgress } from "@mui/material";
+import { Box, Stack, TextField, Button } from "@mui/material";
 import { useState } from "react";
 
 export default function Home() {
@@ -25,43 +25,48 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const response = await fetch('/app/api/chat', {
+      const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Authorization": `Bearer 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`,
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify([...messages, { role: 'user', content: message }])
+        body: JSON.stringify({
+          model: "meta-llama/llama-3.1-8b-instruct:free",
+          messages: [
+            { role: "user", content: message }
+          ]
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let result = '';
+      
 
-      const processText = async ({ done, value }) => {
-        if (done) {
-          setLoading(false); // Ensure loading stops when the stream is done
-          return result;
-        }
-        
-        const text = decoder.decode(value || new Uint8Array(), { stream: true });
-        
-        setMessages((messages) => {
-          const lastMessage = messages[messages.length - 1];
-          const otherMessages = messages.slice(0, messages.length - 1);
+      const jsonResponse = await response.json();
 
-          return [
-            ...otherMessages,
-            {
-              ...lastMessage,
-              content: lastMessage.content + text,
-            },
-          ];
-        });
+      if (jsonResponse.error) {
+        throw new Error(jsonResponse.error.message);
+      }
 
-        return reader.read().then(processText);
-      };
+      const assistantMessage = jsonResponse.choices[0].message.content;
 
-      reader.read().then(processText);
+      // Update the assistant's last message with the API response
+      setMessages((messages) => {
+        const lastMessage = messages[messages.length - 1];
+        const otherMessages = messages.slice(0, messages.length - 1);
+
+        return [
+          ...otherMessages,
+          {
+            ...lastMessage,
+            content: assistantMessage,
+          },
+        ];
+      });
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -69,6 +74,7 @@ export default function Home() {
         ...messages,
         { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }
       ]);
+    } finally {
       setLoading(false);
     }
   };
@@ -119,7 +125,7 @@ export default function Home() {
           ))}
           {loading && (
             <Box display="flex" justifyContent="center">
-              <CircularProgress size={24} />
+              {/* <CircularProgress size={24} /> */}
             </Box>
           )}
         </Stack>
